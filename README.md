@@ -1,5 +1,5 @@
 # Rounded Corners Background Span
-![Likes Layout Demo](/images/demo.png)
+![Rounded Corners Background Span](/images/demo.png)
 
 
 ## Setup and usage
