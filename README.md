@@ -41,6 +41,8 @@ final Spannable spanned = new RoundedCornersBackgroundSpan.TextPartsBuilder(this
 textView.setText(spanned);
 ```
 
+As an entire text or text parts you can pass any CharSequence, even another Spanned strings with their own spans!
+
 ###### Restrictions: 
 * You must always apply padding, lines spacing and shadow to your TextView. See sample app for example.
 * Shadow radius must be equal to text padding.
