@@ -15,7 +15,7 @@ import java.util.Random;
 
 import static ua.vlasov.rcbs.RoundedCornersBackgroundSpan.DEFAULT_SEPARATOR;
 import static ua.vlasov.rcbs.RoundedCornersBackgroundSpan.EntireTextBuilder;
-import static ua.vlasov.rcbs.RoundedCornersBackgroundSpan.PartTextBuilder;
+import static ua.vlasov.rcbs.RoundedCornersBackgroundSpan.TextPartsBuilder;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Set text using {@link PartTextBuilder}.
+     * Set text using {@link TextPartsBuilder}.
      * @param radius corner radius
      * @param padding text padding
      */
@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
                 "Yo-ho-ho! Pieces o' fight are forever golden.",
                 "Woodchucks are the landlubbers of the rough passion."
         };
-        final PartTextBuilder partTextBuilder =
-                new PartTextBuilder(this)
+        final TextPartsBuilder textPartsBuilder =
+                new TextPartsBuilder(this)
                         .setTextPadding(padding)
                         .setCornersRadius(radius);
         for (int i = 0; i < parts.length; i++) {
@@ -72,12 +72,12 @@ public class MainActivity extends AppCompatActivity {
                 final SpannableString string = new SpannableString(part);
                 final ForegroundColorSpan colorSpan = new ForegroundColorSpan(Color.WHITE);
                 string.setSpan(colorSpan, 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                partTextBuilder.addTextPart(string, Color.parseColor(color));
+                textPartsBuilder.addTextPart(string, Color.parseColor(color));
             } else {
-                partTextBuilder.addTextPart(part);
+                textPartsBuilder.addTextPart(part);
             }
         }
-        final Spannable firstText = partTextBuilder.build();
+        final Spannable firstText = textPartsBuilder.build();
         text1.setText(firstText);
     }
 
