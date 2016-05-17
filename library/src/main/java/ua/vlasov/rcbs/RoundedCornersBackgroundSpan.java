@@ -61,9 +61,9 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
         mPadding = padding;
     }
 
-    private RoundedCornersBackgroundSpan(@NonNull PartTextBuilder partTextBuilder) {
-        this(partTextBuilder.mRadius, partTextBuilder.mPadding);
-        for (final Pair<CharSequence, BackgroundHolder> textPart : partTextBuilder.mTextParts) {
+    private RoundedCornersBackgroundSpan(@NonNull TextPartsBuilder textPartsBuilder) {
+        this(textPartsBuilder.mRadius, textPartsBuilder.mPadding);
+        for (final Pair<CharSequence, BackgroundHolder> textPart : textPartsBuilder.mTextParts) {
             if (textPart.second != null) {
                 mBackgroundHolders.add(textPart.second);
             }
@@ -226,7 +226,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * Set corners radius from resources.
          * @param radiusRes dimen ID of radius
          */
-        public EntireTextBuilder setRadiusRes(@DimenRes int radiusRes) {
+        public EntireTextBuilder setCornersRadiusRes(@DimenRes int radiusRes) {
             return setCornersRadius(mContext.getResources().getDimension(radiusRes));
         }
 
@@ -267,7 +267,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
     /**
      * Builder for creating RoundedCornersBackgroundSpan by text parts.
      */
-    public static class PartTextBuilder {
+    public static class TextPartsBuilder {
 
         private final Context mContext;
         private float mRadius;
@@ -279,7 +279,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * Constructor.
          * @param context instance of Context
          */
-        public PartTextBuilder(@NonNull Context context) {
+        public TextPartsBuilder(@NonNull Context context) {
             mContext = context;
         }
 
@@ -287,7 +287,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * Set corners radius.
          * @param radius corners radius in pixels.
          */
-        public PartTextBuilder setCornersRadius(float radius) {
+        public TextPartsBuilder setCornersRadius(float radius) {
             mRadius = radius;
             return this;
         }
@@ -296,7 +296,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * Set text padding.
          * @param padding text padding in pixels
          */
-        public PartTextBuilder setTextPadding(float padding) {
+        public TextPartsBuilder setTextPadding(float padding) {
             mPadding = padding;
             return this;
         }
@@ -305,7 +305,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * Set text padding from resources.
          * @param paddingRes dimen ID of padding
          */
-        public PartTextBuilder setTextPaddingRes(@DimenRes int paddingRes) {
+        public TextPartsBuilder setTextPaddingRes(@DimenRes int paddingRes) {
             return setTextPadding(mContext.getResources().getDimension(paddingRes));
         }
 
@@ -313,7 +313,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * Set corners radius from resources.
          * @param radiusRes dimen ID of radius
          */
-        public PartTextBuilder setCornersRadiusRes(@DimenRes int radiusRes) {
+        public TextPartsBuilder setCornersRadiusRes(@DimenRes int radiusRes) {
             return setCornersRadius(mContext.getResources().getDimension(radiusRes));
         }
 
@@ -321,7 +321,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * Set separator between text parts.
          * @param separator any separator
          */
-        public PartTextBuilder setSeparator(@NonNull CharSequence separator) {
+        public TextPartsBuilder setSeparator(@NonNull CharSequence separator) {
             mSeparator = separator;
             return this;
         }
@@ -331,7 +331,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * @param textPart text part
          * @param bgColor background color
          */
-        public PartTextBuilder addTextPart(@NonNull CharSequence textPart, @ColorInt int bgColor) {
+        public TextPartsBuilder addTextPart(@NonNull CharSequence textPart, @ColorInt int bgColor) {
             BackgroundHolder backgroundHolder = new BackgroundHolder(bgColor, 0, 0);
             Pair<CharSequence, BackgroundHolder> pair = Pair.create(textPart, backgroundHolder);
             mTextParts.add(pair);
@@ -343,7 +343,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * @param textRes string ID of text part
          * @param bgColorRes color ID of background
          */
-        public PartTextBuilder addTextPart(@StringRes int textRes, @ColorRes int bgColorRes) {
+        public TextPartsBuilder addTextPart(@StringRes int textRes, @ColorRes int bgColorRes) {
             return addTextPart(mContext.getText(textRes), ContextCompat.getColor(mContext, bgColorRes));
         }
 
@@ -351,7 +351,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * Add text part without background.
          * @param textPart text part
          */
-        public PartTextBuilder addTextPart(@NonNull CharSequence textPart) {
+        public TextPartsBuilder addTextPart(@NonNull CharSequence textPart) {
             Pair<CharSequence, BackgroundHolder> pair = Pair.create(textPart, null);
             mTextParts.add(pair);
             return this;
@@ -361,7 +361,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * Add text part without background from resources.
          * @param textRes string ID of text part
          */
-        public PartTextBuilder addTextPart(@StringRes int textRes) {
+        public TextPartsBuilder addTextPart(@StringRes int textRes) {
             return addTextPart(mContext.getText(textRes));
         }
 
