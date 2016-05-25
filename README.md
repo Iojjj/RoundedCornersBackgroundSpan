@@ -8,7 +8,7 @@ To include this library to your project add dependency in **build.gradle** file:
 
 ```groovy
 dependencies {
-    compile '$coming_soon$'
+    compile 'com.github.iojjj:rcbs:1.0.0'
 }
 ```
 

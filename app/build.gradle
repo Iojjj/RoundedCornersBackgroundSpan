@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        applicationId "ua.vlasov.rcbs.app"
+        applicationId "com.github.iojjj.rcbs.app"
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
@@ -17,11 +17,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    dexOptions {
-        maxProcessCount 2
-        javaMaxHeapSize "2g"
-    }
-
     productFlavors {
         defaultConfig {
             minSdkVersion 9

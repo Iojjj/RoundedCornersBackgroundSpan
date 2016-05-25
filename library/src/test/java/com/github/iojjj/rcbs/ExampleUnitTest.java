@@ -1,4 +1,4 @@
-package ua.vlasov.rcbs;
+package com.github.iojjj.rcbs;
 
 import org.junit.Test;
 
