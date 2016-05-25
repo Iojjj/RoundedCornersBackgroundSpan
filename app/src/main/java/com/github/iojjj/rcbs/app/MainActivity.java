@@ -1,4 +1,4 @@
-package ua.vlasov.rcbs.app;
+package com.github.iojjj.rcbs.app;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -13,9 +13,9 @@ import android.widget.TextView;
 
 import java.util.Random;
 
-import static ua.vlasov.rcbs.RoundedCornersBackgroundSpan.DEFAULT_SEPARATOR;
-import static ua.vlasov.rcbs.RoundedCornersBackgroundSpan.EntireTextBuilder;
-import static ua.vlasov.rcbs.RoundedCornersBackgroundSpan.TextPartsBuilder;
+import static com.github.iojjj.rcbs.RoundedCornersBackgroundSpan.DEFAULT_SEPARATOR;
+import static com.github.iojjj.rcbs.RoundedCornersBackgroundSpan.EntireTextBuilder;
+import static com.github.iojjj.rcbs.RoundedCornersBackgroundSpan.TextPartsBuilder;
 
 public class MainActivity extends AppCompatActivity {
 

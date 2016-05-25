@@ -1,4 +1,4 @@
-package ua.vlasov.rcbs.app;
+package com.github.iojjj.rcbs.app;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
