@@ -26,7 +26,6 @@ final Spanned spanned = new RoundedCornersBackgroundSpan.EntireTextBuilder(this,
 textView.setText(spanned);
 
 ...
-
 final Spannable spanned = new RoundedCornersBackgroundSpan.TextPartsBuilder(this)
     .setTextPadding(textPadding)
     .setCornersRadius(cornersRadius)
@@ -43,7 +42,7 @@ textView.setText(spanned);
 
 As an entire text or text parts you can pass any `CharSequence`, even another `Spanned` strings with their own spans!
 
-###### Restrictions: 
+## Restrictions: 
 * You must always apply padding, lines spacing and shadow to your TextView. See sample app for example.
 * Shadow radius must be equal to text padding.
 * Prefer transparent colors for shadow. You can set shadow via code `TextView.setShadowLayer(padding, 0, 0, Color.TRANSPARENT);`. 
@@ -51,6 +50,7 @@ As an entire text or text parts you can pass any `CharSequence`, even another `S
 * EntireTextBuilder is quite difficult to use because you need to add text separators on your own and calculate proper start and end background offsets. Prefer TextPartsBuilder instead.
 
 <br />
+
 ## Changelog
 
 | Version | Changes                         |
@@ -58,13 +58,14 @@ As an entire text or text parts you can pass any `CharSequence`, even another `S
 | v.1.0.0 | First public release            |
 
 <br />
+
 ## Support
 
 You can support this library by creating a pull request with bug fixes and/or new features on `develop` branch. Any pull requests on `master` branch will be removed. 
 
 <br />
+
 ## License
-* * *
     The MIT License (MIT)
     
     Permission is hereby granted, free of charge, to any person obtaining a copy
