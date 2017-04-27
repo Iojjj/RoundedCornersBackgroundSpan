@@ -16,17 +16,17 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.LineBackgroundSpan;
-import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Implementation of LineBackgroundSpan that adds rounded rectangle backgrounds to text.
  */
 public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
+
+    private static final int IGNORE_TEXT_SIZE = -1;
 
     /**
      * Default separator between text parts.
@@ -109,7 +109,14 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
             }
 
             float l = p.measureText(text, start, startInText);
+            float nowSize = backgroundHolder.mTextSize;
+            float oldSize = p.getTextSize();
+            if (nowSize != IGNORE_TEXT_SIZE) {
+                p.setTextSize(nowSize);
+            }
             float r = l + p.measureText(text, startInText, endInText);
+            p.setTextSize(oldSize);
+
             mRectangle.set(l - mPadding, top - mPadding, r + mPadding, baseline + p.descent() + mPadding);
             mPaint.setColor(backgroundHolder.mBgColor);
             c.drawRoundRect(mRectangle, mRadius, mRadius, mPaint);
@@ -166,10 +173,16 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          */
         private int mEnd;
 
-        public BackgroundHolder(int bgColor, int start, int end) {
+        /**
+         *
+         */
+        private float mTextSize;
+
+        public BackgroundHolder(int bgColor, int start, int end, float textSize) {
             mBgColor = bgColor;
             mStart = start;
             mEnd = end;
+            mTextSize = textSize;
         }
     }
 
@@ -184,6 +197,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
         private final List<BackgroundHolder> mBackgrounds = new ArrayList<>();
         private float mRadius;
         private float mPadding;
+        private float mTextSize;
 
         /**
          * Constructor.
@@ -193,6 +207,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
         public EntireTextBuilder(@NonNull Context context, @NonNull CharSequence text) {
             mContext = context.getApplicationContext();
             mText = text;
+            mTextSize = IGNORE_TEXT_SIZE;
         }
 
         /**
@@ -239,14 +254,31 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
         }
 
         /**
+         * Set text size for future text part
+         * @param size text size in pixel
+         */
+        public void setTextSize(float size) {
+            mTextSize = size;
+        }
+
+        /**
+         * Set text size for future text part
+         * @param size dimen ID of text size
+         */
+        public void setTextSize(@DimenRes  int size) {
+            setTextSize(mContext.getResources().getDimension(size));
+        }
+
+        /**
          * Add background to text.
          * @param bgColor background color
          * @param start start offset of background
          * @param end end offset of background
          */
         public EntireTextBuilder addBackground(@ColorInt int bgColor, int start, int end) {
-            BackgroundHolder backgroundHolder = new BackgroundHolder(bgColor, start, end);
+            BackgroundHolder backgroundHolder = new BackgroundHolder(bgColor, start, end, mTextSize);
             mBackgrounds.add(backgroundHolder);
+            mTextSize = -1;
             return this;
         }
 
@@ -282,6 +314,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
         private float mPadding;
         private CharSequence mSeparator = DEFAULT_SEPARATOR;
         private final List<Pair<CharSequence, BackgroundHolder>> mTextParts = new ArrayList<>();
+        private float mTextSize;
 
         /**
          * Constructor.
@@ -289,6 +322,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          */
         public TextPartsBuilder(@NonNull Context context) {
             mContext = context.getApplicationContext();
+            mTextSize = IGNORE_TEXT_SIZE;
         }
 
         /**
@@ -335,14 +369,30 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
         }
 
         /**
+         * Set text size for future text part
+         * @param size text size in pixel
+         */
+        public void setTextSize(float size) {
+            mTextSize = size;
+        }
+
+        /**
+         * Set text size for future text part
+         * @param size dimen ID of text size
+         */
+        public void setTextSize(@DimenRes  int size) {
+            setTextSize(mContext.getResources().getDimension(size));
+        }
+
+        /**
          * Add text part with background.
          * @param textPart text part
          * @param bgColor background color
          */
         public TextPartsBuilder addTextPart(@NonNull CharSequence textPart, @ColorInt int bgColor) {
-            BackgroundHolder backgroundHolder = new BackgroundHolder(bgColor, 0, 0);
-            Pair<CharSequence, BackgroundHolder> pair = Pair.create(textPart, backgroundHolder);
-            mTextParts.add(pair);
+            addTextPart(textPart);
+            BackgroundHolder holder = mTextParts.get(mTextParts.size() - 1).second;
+            holder.mBgColor = bgColor;
             return this;
         }
 
@@ -360,9 +410,10 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * @param textPart text part
          */
         public TextPartsBuilder addTextPart(@NonNull CharSequence textPart) {
-            BackgroundHolder holder = new BackgroundHolder(Color.TRANSPARENT, -1, -1);
+            BackgroundHolder holder = new BackgroundHolder(Color.TRANSPARENT, 0, 0, mTextSize);
             Pair<CharSequence, BackgroundHolder> pair = Pair.create(textPart,  holder);
             mTextParts.add(pair);
+            mTextSize = IGNORE_TEXT_SIZE;
             return this;
         }
 
