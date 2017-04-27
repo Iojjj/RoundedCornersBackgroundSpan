@@ -2,6 +2,7 @@ package com.github.iojjj.rcbs;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Build;
@@ -15,10 +16,12 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.LineBackgroundSpan;
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Implementation of LineBackgroundSpan that adds rounded rectangle backgrounds to text.
@@ -76,30 +79,35 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
     }
 
     @Override
-    public void drawBackground(Canvas c, Paint p, int left, int right, int top, int baseline, int bottom, CharSequence text, int start, int end, int lnum) {
-        for (BackgroundHolder backgroundHolder : mBackgroundHolders) {
-            if (start > backgroundHolder.mEnd || end < backgroundHolder.mStart)
+    public void drawBackground(Canvas c, Paint p, int left, int right, int top, int baseline,
+                               int bottom, CharSequence text, int start, int end, int lnum) {
+        for (int i = 0; i < mBackgroundHolders.size(); i++) {
+            BackgroundHolder backgroundHolder = mBackgroundHolders.get(i);
+            if (start > backgroundHolder.mEnd || end < backgroundHolder.mStart) {
                 continue;
-            final CharSequence part = text.subSequence(start, end);
-            final int trimmedLength = TextUtils.getTrimmedLength(part);
-            final String trimmedText = part.toString().trim();
+            }
+
+            int startInText = start < backgroundHolder.mStart ? backgroundHolder.mStart : start;
+            int endInText = end > backgroundHolder.mEnd ? backgroundHolder.mEnd : end;
             // skip empty parts
-            if (TextUtils.isEmpty(trimmedText)) {
+            if (startInText == endInText) {
+                continue;
+            }
+
+            final CharSequence part = text.subSequence(startInText, endInText);
+            final int trimmedLength = TextUtils.getTrimmedLength(part);
+            // skip empty parts
+            if (trimmedLength == 0) {
                 continue;
             }
             // do not add background to lines that ends with spaces
             if (trimmedLength != part.length()) {
                 final int trimmedLengthStart = getTrimmedLengthStart(part);
                 final int trimmedLengthEnd = getTrimmedLengthEnd(part, trimmedLengthStart);
-                start = start + trimmedLengthStart;
-                end = end - trimmedLengthEnd;
+                start += trimmedLengthStart;
+                endInText -= trimmedLengthEnd;
             }
-            final int startInText = start < backgroundHolder.mStart ? backgroundHolder.mStart : start;
-            final int endInText = end > backgroundHolder.mEnd ? backgroundHolder.mEnd : end;
-            // skip empty parts
-            if (startInText == endInText) {
-                continue;
-            }
+
             float l = p.measureText(text, start, startInText);
             float r = l + p.measureText(text, startInText, endInText);
             mRectangle.set(l - mPadding, top - mPadding, r + mPadding, baseline + p.descent() + mPadding);
@@ -352,7 +360,8 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * @param textPart text part
          */
         public TextPartsBuilder addTextPart(@NonNull CharSequence textPart) {
-            Pair<CharSequence, BackgroundHolder> pair = Pair.create(textPart, null);
+            BackgroundHolder holder = new BackgroundHolder(Color.TRANSPARENT, -1, -1);
+            Pair<CharSequence, BackgroundHolder> pair = Pair.create(textPart,  holder);
             mTextParts.add(pair);
             return this;
         }
@@ -370,21 +379,16 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * @return spanned string
          */
         public Spannable build() {
-            boolean first = true;
             SpannableStringBuilder builder = new SpannableStringBuilder();
+            int prev = 0;
             for (final Pair<CharSequence, BackgroundHolder> stringPart : mTextParts) {
-                if (first) {
-                    first = false;
-                } else {
-                    builder.append(mSeparator);
-                }
-                if (stringPart.second != null) {
-                    stringPart.second.mStart = builder.length();
-                }
-                builder.append(stringPart.first);
-                if (stringPart.second != null) {
-                    stringPart.second.mEnd = builder.length();
-                }
+                CharSequence txt = stringPart.first;
+                BackgroundHolder holder = stringPart.second;
+                builder.append(txt);
+                builder.append(mSeparator);
+                holder.mStart = prev;
+                holder.mEnd = prev + txt.length() + mSeparator.length();
+                prev = holder.mEnd;
             }
             RoundedCornersBackgroundSpan span = new RoundedCornersBackgroundSpan(this);
             builder.setSpan(span, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
