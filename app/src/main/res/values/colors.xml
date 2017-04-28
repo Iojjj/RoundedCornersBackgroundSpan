@@ -3,4 +3,17 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <array name="entire">
+        <item>#f44336</item>
+        <item>#448aff</item>
+        <item>#4caf50</item>
+        <item>#ffc107</item>
+        <item>#ff5722</item>
+        <item>#ff9800</item>
+        <item>#607d8b</item>
+        <item>#4caf50</item>
+        <item>#673ab7</item>
+    </array>
+
 </resources>

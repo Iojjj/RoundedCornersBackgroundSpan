@@ -1,6 +1,5 @@
 package com.github.iojjj.rcbs.app;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +8,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.widget.TextView;
 
 import java.util.Random;
@@ -27,8 +27,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         text1 = (TextView) findViewById(R.id.text1);
         text2 = (TextView) findViewById(R.id.text2);
-        float radius = convertDpToPx(this, 2);
-        final int padding = (int) convertDpToPx(this, 4);
+        int radius = getResources().getDimensionPixelSize(R.dimen.radius);
+        int padding = getResources().getDimensionPixelSize(R.dimen.padding);
         setTextByParts(radius, padding);
         setEntireText(radius, padding);
     }
@@ -40,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setTextByParts(float radius, int padding) {
         String[] colors = new String[]{
-                "#F44336",
+                null,
+                "#4CAF50",
                 null,
                 "#4CAF50",
                 null,
@@ -68,13 +69,17 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < parts.length; i++) {
             final String part = parts[i];
             final String color = colors[i];
+            final SpannableString string = new SpannableString(part);
+            if (i == 3) {
+                string.setSpan(new RelativeSizeSpan(1.5f), 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                textPartsBuilder.setTextSize(text1.getTextSize() * 1.5f);
+            }
             if (!TextUtils.isEmpty(color)) {
-                final SpannableString string = new SpannableString(part);
                 final ForegroundColorSpan colorSpan = new ForegroundColorSpan(Color.WHITE);
                 string.setSpan(colorSpan, 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 textPartsBuilder.addTextPart(string, Color.parseColor(color));
             } else {
-                textPartsBuilder.addTextPart(part);
+                textPartsBuilder.addTextPart(string);
             }
         }
         final Spannable firstText = textPartsBuilder.build();
@@ -87,17 +92,7 @@ public class MainActivity extends AppCompatActivity {
      * @param padding text padding
      */
     private void setEntireText(float radius, int padding) {
-        String[] colors = new String[]{
-                "#F44336",
-                "#448AFF",
-                "#4CAF50",
-                "#FFC107",
-                "#FF5722",
-                "#FF9800",
-                "#607D8B",
-                "#4CAF50",
-                "#673AB7"
-        };
+        int[] colors = getResources().getIntArray(R.array.entire);
         final Random random = new Random();
         final String text = "Be embittered." +
                 DEFAULT_SEPARATOR +
@@ -116,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             prev = index;
             index = text.indexOf('.', index + 1);
             if (index > -1) {
-                entireTextBuilder.addBackground(Color.parseColor(colors[random.nextInt(colors.length)]),
+                entireTextBuilder.addBackground(colors[random.nextInt(colors.length)],
                         prev + (prev == 0 ? 0 : separatorLength), index + 1);
             }
         } while (index > -1);
@@ -124,7 +119,4 @@ public class MainActivity extends AppCompatActivity {
         text2.setText(secondText);
     }
 
-    private static float convertDpToPx(Context context, float dp) {
-        return context.getResources().getDisplayMetrics().density * dp;
-    }
 }
