@@ -2,6 +2,7 @@ package com.github.iojjj.rcbs.app;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
@@ -9,9 +10,17 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.ScaleXSpan;
+import android.text.style.StyleSpan;
+import android.text.style.SubscriptSpan;
+import android.text.style.SuperscriptSpan;
+import android.text.style.TextAppearanceSpan;
+import android.text.style.TypefaceSpan;
+import android.util.SparseArray;
 import android.widget.TextView;
 
-import static com.github.iojjj.rcbs.RoundedCornersBackgroundSpan.TextPartsBuilder;
+import com.github.iojjj.rcbs.RoundedCornersBackgroundSpan;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,12 +37,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Set text using {@link TextPartsBuilder}.
-     * @param radius corner radius
+     * Set text using {@link com.github.iojjj.rcbs.RoundedCornersBackgroundSpan.Builder}.
+     *
+     * @param radius  corner radius
      * @param padding text padding
      */
     private void setTextByParts(float radius, int padding) {
-        String[] colors = new String[]{
+        final String[] colors = new String[]{
                 "#F44336",
                 null,
                 "#4CAF50",
@@ -44,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
                 null,
                 "#673AB7"
         };
-        String[] parts = new String[]{
+        final String[] parts = new String[]{
                 "The mast grows passion like a swashbuckling mainland.",
                 "Golden, big gulls quirky endure a sunny, jolly sailor.",
                 "The misty freebooter heavily hails the wave.",
@@ -55,23 +65,36 @@ public class MainActivity extends AppCompatActivity {
                 "Yo-ho-ho! Pieces o' fight are forever golden.",
                 "Woodchucks are the landlubbers of the rough passion."
         };
-        final TextPartsBuilder textPartsBuilder =
-                new TextPartsBuilder(this)
-                        .setTextPadding(padding)
-                        .setCornersRadius(radius);
+        final RoundedCornersBackgroundSpan.Builder builder = new RoundedCornersBackgroundSpan.Builder(this)
+                .setTextPadding(padding)
+                .setCornersRadius(radius);
+        final SparseArray<Object[]> spans = new SparseArray<>();
+        spans.append(0, new Object[] { new ScaleXSpan(1.3f), new TypefaceSpan("monospace") });
+        spans.append(1, new Object[] { new RelativeSizeSpan(0.8f), new TypefaceSpan("serif") });
+        spans.append(2, new Object[] { new StyleSpan(Typeface.BOLD), new TypefaceSpan("sans-serif") });
+        spans.append(3, new Object[] { new SubscriptSpan() });
+        spans.append(4, new Object[] { new SuperscriptSpan() });
+        spans.append(5, new Object[] { new TextAppearanceSpan(this, android.R.style.TextAppearance_Small) });
+        spans.append(6, new Object[] { new TypefaceSpan("monospace") });
         for (int i = 0; i < parts.length; i++) {
             final String part = parts[i];
             final String color = colors[i];
+            final SpannableString string = new SpannableString(part);
+            final Object[] spanObjects = spans.get(i);
+            if (spanObjects != null) {
+                for (Object object : spanObjects) {
+                    string.setSpan(object, 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            }
             if (!TextUtils.isEmpty(color)) {
-                final SpannableString string = new SpannableString(part);
                 final ForegroundColorSpan colorSpan = new ForegroundColorSpan(Color.WHITE);
                 string.setSpan(colorSpan, 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                textPartsBuilder.addTextPart(string, Color.parseColor(color));
+                builder.addTextPart(string, Color.parseColor(color));
             } else {
-                textPartsBuilder.addTextPart(part);
+                builder.addTextPart(string);
             }
         }
-        final Spannable firstText = textPartsBuilder.build();
+        final Spannable firstText = builder.build();
         text1.setText(firstText);
     }
 

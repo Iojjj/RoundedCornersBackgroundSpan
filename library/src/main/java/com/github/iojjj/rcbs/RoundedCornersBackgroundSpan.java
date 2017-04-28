@@ -13,8 +13,11 @@ import android.support.annotation.StringRes;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.SpannedString;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.LineBackgroundSpan;
+import android.text.style.MetricAffectingSpan;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -55,15 +58,21 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
      */
     private final float mPadding;
 
+    /**
+     * List that holds data required to properly measure text on the line that contains multiple
+     * {@link MetricAffectingSpan} effects.
+     */
+    private final List<LineDataHolder> mHoldersOnLine = new ArrayList<>();
+
     private RoundedCornersBackgroundSpan(float radius, float padding) {
         mPaint.setAntiAlias(true);
         mRadius = radius;
         mPadding = padding;
     }
 
-    private RoundedCornersBackgroundSpan(@NonNull TextPartsBuilder textPartsBuilder) {
-        this(textPartsBuilder.mRadius, textPartsBuilder.mPadding);
-        for (final Pair<CharSequence, BackgroundHolder> textPart : textPartsBuilder.mTextParts) {
+    private RoundedCornersBackgroundSpan(@NonNull Builder builder) {
+        this(builder.mRadius, builder.mPadding);
+        for (final Pair<CharSequence, BackgroundHolder> textPart : builder.mTextParts) {
             if (textPart.second != null) {
                 mBackgroundHolders.add(textPart.second);
             }
@@ -71,10 +80,13 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
     }
 
     @Override
-    public void drawBackground(Canvas c, Paint p, int left, int right, int top, int baseline, int bottom, CharSequence text, int start, int end, int lnum) {
+    public void drawBackground(Canvas c, Paint p, int left, int right, int top, int baseline,
+                               int bottom, CharSequence text, int start, int end, int lnum) {
+        mHoldersOnLine.clear();
         for (BackgroundHolder backgroundHolder : mBackgroundHolders) {
-            if (start > backgroundHolder.mEnd || end < backgroundHolder.mStart)
+            if (start > backgroundHolder.mEnd || end < backgroundHolder.mStart) {
                 continue;
+            }
             final CharSequence part = text.subSequence(start, end);
             final int trimmedLength = TextUtils.getTrimmedLength(part);
             final String trimmedText = part.toString().trim();
@@ -95,17 +107,37 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
             if (startInText == endInText) {
                 continue;
             }
-            float l = p.measureText(text, start, startInText);
-            float r;
+            final TextPaint textPaint = new TextPaint(p);
+            if (text instanceof SpannedString) {
+                SpannedString spanned = (SpannedString) text;
+                final MetricAffectingSpan[] spans = spanned.getSpans(startInText, endInText, MetricAffectingSpan.class);
+                if (spans.length > 0) {
+                    for (MetricAffectingSpan span : spans) {
+                        span.updateMeasureState(textPaint);
+                    }
+                }
+            }
+            float l = 0, r;
+            if (!mHoldersOnLine.isEmpty()) {
+                for (LineDataHolder holder : mHoldersOnLine) {
+                    l += holder.mTextPaint.measureText(text, holder.mStartIntText, holder.mEndIntText);
+                }
+                l += mHoldersOnLine.size() * p.measureText(DEFAULT_SEPARATOR, 0, DEFAULT_SEPARATOR.length());
+            }
             try {
-                r = l + p.measureText(text, startInText, endInText);
+                r = l + textPaint.measureText(text, startInText, endInText);
             } catch (IndexOutOfBoundsException e) {
-                // skip drawing
+                // skip drawing. This crashes on Android 4.3 (potentially on all 4.x) devices
+                // without `continue` it will draw an empty rectangle with rounded corners (if padding has been set)
                 continue;
             }
-            mRectangle.set(l - mPadding, top - mPadding, r + mPadding, baseline + p.descent() + mPadding);
-            mPaint.setColor(backgroundHolder.mBgColor);
-            c.drawRoundRect(mRectangle, mRadius, mRadius, mPaint);
+            // skip transparent backgrounds
+            if (backgroundHolder.mBgColor != 0) {
+                mRectangle.set(l - mPadding, top - mPadding, r + mPadding, baseline + p.descent() + mPadding);
+                mPaint.setColor(backgroundHolder.mBgColor);
+                c.drawRoundRect(mRectangle, mRadius, mRadius, mPaint);
+            }
+            mHoldersOnLine.add(new LineDataHolder(textPaint, startInText, endInText));
         }
     }
 
@@ -171,7 +203,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
     /**
      * Builder for creating RoundedCornersBackgroundSpan by text parts.
      */
-    public static class TextPartsBuilder {
+    public static class Builder {
 
         private final Context mContext;
         private float mRadius;
@@ -184,7 +216,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          *
          * @param context instance of Context
          */
-        public TextPartsBuilder(@NonNull Context context) {
+        public Builder(@NonNull Context context) {
             mContext = context.getApplicationContext();
         }
 
@@ -193,7 +225,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          *
          * @param radius corners radius in pixels.
          */
-        public TextPartsBuilder setCornersRadius(float radius) {
+        public Builder setCornersRadius(float radius) {
             mRadius = radius;
             return this;
         }
@@ -203,7 +235,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          *
          * @param padding text padding in pixels
          */
-        public TextPartsBuilder setTextPadding(float padding) {
+        public Builder setTextPadding(float padding) {
             mPadding = padding;
             return this;
         }
@@ -213,7 +245,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          *
          * @param paddingRes dimen ID of padding
          */
-        public TextPartsBuilder setTextPaddingRes(@DimenRes int paddingRes) {
+        public Builder setTextPaddingRes(@DimenRes int paddingRes) {
             return setTextPadding(mContext.getResources().getDimension(paddingRes));
         }
 
@@ -222,7 +254,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          *
          * @param radiusRes dimen ID of radius
          */
-        public TextPartsBuilder setCornersRadiusRes(@DimenRes int radiusRes) {
+        public Builder setCornersRadiusRes(@DimenRes int radiusRes) {
             return setCornersRadius(mContext.getResources().getDimension(radiusRes));
         }
 
@@ -231,7 +263,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          *
          * @param separator any separator
          */
-        public TextPartsBuilder setSeparator(@NonNull CharSequence separator) {
+        public Builder setSeparator(@NonNull CharSequence separator) {
             mSeparator = separator;
             return this;
         }
@@ -242,7 +274,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * @param textPart text part
          * @param bgColor  background color
          */
-        public TextPartsBuilder addTextPart(@NonNull CharSequence textPart, @ColorInt int bgColor) {
+        public Builder addTextPart(@NonNull CharSequence textPart, @ColorInt int bgColor) {
             BackgroundHolder backgroundHolder = new BackgroundHolder(bgColor, 0, 0);
             Pair<CharSequence, BackgroundHolder> pair = Pair.create(textPart, backgroundHolder);
             mTextParts.add(pair);
@@ -255,7 +287,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          * @param textRes    string ID of text part
          * @param bgColorRes color ID of background
          */
-        public TextPartsBuilder addTextPart(@StringRes int textRes, @ColorRes int bgColorRes) {
+        public Builder addTextPart(@StringRes int textRes, @ColorRes int bgColorRes) {
             return addTextPart(mContext.getText(textRes), getColor(mContext, bgColorRes));
         }
 
@@ -264,10 +296,8 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          *
          * @param textPart text part
          */
-        public TextPartsBuilder addTextPart(@NonNull CharSequence textPart) {
-            Pair<CharSequence, BackgroundHolder> pair = Pair.create(textPart, null);
-            mTextParts.add(pair);
-            return this;
+        public Builder addTextPart(@NonNull CharSequence textPart) {
+            return this.addTextPart(textPart, 0);
         }
 
         /**
@@ -275,7 +305,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
          *
          * @param textRes string ID of text part
          */
-        public TextPartsBuilder addTextPart(@StringRes int textRes) {
+        public Builder addTextPart(@StringRes int textRes) {
             return addTextPart(mContext.getText(textRes));
         }
 
@@ -304,6 +334,19 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
             RoundedCornersBackgroundSpan span = new RoundedCornersBackgroundSpan(this);
             builder.setSpan(span, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             return builder;
+        }
+    }
+
+    private static class LineDataHolder {
+
+        final TextPaint mTextPaint;
+        final int mStartIntText;
+        final int mEndIntText;
+
+        LineDataHolder(TextPaint textPaint, int startIntText, int endIntText) {
+            mTextPaint = textPaint;
+            mStartIntText = startIntText;
+            mEndIntText = endIntText;
         }
     }
 
