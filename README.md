@@ -12,21 +12,10 @@ dependencies {
 }
 ```
 
-There are two ways to create spannable string: using **EntireTextBuilder** or **TextPartsBuilder**.
+You can create spannable string using  **RoundedCornersBackgroundSpan.Builder**.
 
 ```JAVA
-final Spanned spanned = new RoundedCornersBackgroundSpan.EntireTextBuilder(this, "some text")
-    .setTextPadding(textPadding)
-    .setCornersRadius(cornersRadius)
-    .setTextPaddingRes(R.dimen.textPadding)
-    .setCornersRadiusRes(R.dimen.cornersRadius)
-    .addBackground(Color.RED, 0, 1)
-    .addBackgroundRes(R.color.colorAccent, 2, 3)
-    .build();
-textView.setText(spanned);
-
-...
-final Spannable spanned = new RoundedCornersBackgroundSpan.TextPartsBuilder(this)
+final Spannable spanned = new RoundedCornersBackgroundSpan.Builder(this)
     .setTextPadding(textPadding)
     .setCornersRadius(cornersRadius)
     .setTextPaddingRes(R.dimen.textPadding)
@@ -47,7 +36,6 @@ As an entire text or text parts you can pass any `CharSequence`, even another `S
 * Shadow radius must be equal to text padding.
 * Prefer transparent colors for shadow. You can set shadow via code `TextView.setShadowLayer(padding, 0, 0, Color.TRANSPARENT);`. 
 * You can't set transparent shadow color via XML. Use non-zero colors, for example, `#00000001`.
-* EntireTextBuilder is quite difficult to use because you need to add text separators on your own and calculate proper start and end background offsets. Prefer TextPartsBuilder instead.
 
 <br />
 

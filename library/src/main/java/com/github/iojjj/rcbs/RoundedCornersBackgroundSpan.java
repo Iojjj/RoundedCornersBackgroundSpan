@@ -18,6 +18,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.LineBackgroundSpan;
 import android.text.style.MetricAffectingSpan;
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
