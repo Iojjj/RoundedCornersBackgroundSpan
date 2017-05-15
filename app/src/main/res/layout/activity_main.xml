@@ -15,7 +15,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/text1"
+            android:id="@+id/text_english"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:lineSpacingExtra="10dp"
@@ -27,6 +27,37 @@
             android:shadowColor="#00000001"
             tools:text="text1"
             />
+
+        <TextView
+            android:id="@+id/text_arabic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="10dp"
+            android:padding="4dp"
+            android:textSize="16sp"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="16"
+            android:shadowColor="#00000001"
+            tools:text="text2"
+            android:layout_marginTop="24dp"
+            />
+
+        <TextView
+            android:id="@+id/text_hebrew"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="10dp"
+            android:padding="4dp"
+            android:textSize="16sp"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="16"
+            android:shadowColor="#00000001"
+            android:layout_marginTop="24dp"
+            tools:text="text3"
+            />
+
     </LinearLayout>
 
 

@@ -1,5 +1,5 @@
 # Rounded Corners Background Span
-![Rounded Corners Background Span](/images/demo.png)
+![Left Aligned](/images/1_left.png)![Center Aligned](/images/2_center.png)![Right Aligned](/images/3_right.png)
 
 
 ## Setup and usage
@@ -20,7 +20,7 @@ final Spannable spanned = new RoundedCornersBackgroundSpan.Builder(this)
     .setCornersRadius(cornersRadius)
     .setTextPaddingRes(R.dimen.textPadding)
     .setCornersRadiusRes(R.dimen.cornersRadius)
-    .setSeparator(RoundedCornersBackgroundSpan.DEFAULT_SEPARATOR)
+    .setSeparator("    ")
     .addTextPart("part1", Color.RED)
     .addTextPart(R.string.part2, R.color.colorAccent)
     .addTextPart("part3. no background")
@@ -31,7 +31,8 @@ textView.setText(spanned);
 
 As an entire text or text parts you can pass any `CharSequence`, even another `Spanned` strings with their own spans!
 
-## Restrictions: 
+## Restrictions:
+* Text with mixed layout directions is not supported (i.e. latin and arabic).
 * You must always apply padding, lines spacing and shadow to your TextView. See sample app for example.
 * Shadow radius must be equal to text padding.
 * Prefer transparent colors for shadow. You can set shadow via code `TextView.setShadowLayer(padding, 0, 0, Color.TRANSPARENT);`. 

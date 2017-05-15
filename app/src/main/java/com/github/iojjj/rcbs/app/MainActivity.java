@@ -2,90 +2,109 @@ package com.github.iojjj.rcbs.app;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.ScaleXSpan;
-import android.text.style.StyleSpan;
-import android.text.style.SubscriptSpan;
-import android.text.style.SuperscriptSpan;
-import android.text.style.TextAppearanceSpan;
-import android.text.style.TypefaceSpan;
-import android.util.SparseArray;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.github.iojjj.rcbs.RoundedCornersBackgroundSpan;
+import com.github.iojjj.rcbs.TextAlignment;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView text1;
+
+    private static final String[] COLORS = new String[]{
+            "#F44336",
+            "#4CAF50",
+            "#FF5722",
+            "#607D8B",
+            "#673AB7"
+    };
+
+    private static final String[] ENGLISH_PARTS = new String[]{
+            "Lorem ipsum dolor sit amet, omnis splendide cu vim, usu verear lucilius sensibus ut.",
+            " Nam ad semper fabellas scriptorem, ad aperiam referrentur sea.",
+            "Pri tation blandit id, usu et elitr scaevola pericula.",
+            "Agam philosophia eu sit, qui ut quidam mediocritatem. ",
+            "His te choro utinam noster, everti elaboraret comprehensam ut vel.",
+    };
+
+    private static final String[] ARABIC_PARTS = new String[]{
+            "عرض وجزر وأزيز حاملات ثم, كرسي أطراف الضغوط أما لم.",
+            "لعدم الهجوم أما أم, بـ فاتّبع المبرمة لتقليعة جعل.",
+            "رب لعملة بالرغم وفنلندا تم, حلّت تحرّك قائمة لمّ ان.",
+            "كل فصل فاتّبع بالجانب, وترك يونيو تلك قد.",
+            "تم اتفاق للسيطرة الشتاء، ومن, كل بحشد مارد تحرير تلك.",
+    };
+
+    private static final String[] HEBREW_PARTS = new String[]{
+            "שפות הבהרה ואלקטרוניקה סדר ב.",
+            " כתב ברוכים ויקימדיה מה.",
+            " של תיבת עיצוב מונחונים בקר, הנדסת החופשית את היא.",
+            "מונחונים בקר, הנדסת החופשית את היא.",
+            " כדי וקשקש לויקיפדיה אם."
+    };
+
+    private TextView mEnglishTextView;
+    private TextView mArabicTextView;
+    private TextView mHebrewTextView;
+    private TextView[] mAllTextViews;
+    private float mRadius;
+    private int mPadding;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        text1 = (TextView) findViewById(R.id.text1);
-        float radius = convertDpToPx(this, 2);
-        final int padding = (int) convertDpToPx(this, 4);
-        setTextByParts(radius, padding);
+        mEnglishTextView = (TextView) findViewById(R.id.text_english);
+        mArabicTextView = (TextView) findViewById(R.id.text_arabic);
+        mHebrewTextView = (TextView) findViewById(R.id.text_hebrew);
+        mAllTextViews = new TextView[]{
+                mEnglishTextView, mArabicTextView, mHebrewTextView
+        };
+        mRadius = convertDpToPx(this, 2);
+        mPadding = (int) convertDpToPx(this, 4);
+        setTextByParts(ENGLISH_PARTS, mEnglishTextView, RoundedCornersBackgroundSpan.ALIGN_START);
+        setTextByParts(ARABIC_PARTS, mArabicTextView, RoundedCornersBackgroundSpan.ALIGN_START);
+        setTextByParts(HEBREW_PARTS, mHebrewTextView, RoundedCornersBackgroundSpan.ALIGN_START);
+    }
+
+    private void updateTextAlignment(@TextAlignment int alignment) {
+
+        for (TextView textView : mAllTextViews) {
+            if (alignment == RoundedCornersBackgroundSpan.ALIGN_START) {
+                textView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            } else if (alignment == RoundedCornersBackgroundSpan.ALIGN_END) {
+                textView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+            } else if (alignment == RoundedCornersBackgroundSpan.ALIGN_CENTER) {
+                textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            }
+        }
+        setTextByParts(ENGLISH_PARTS, mEnglishTextView, alignment);
+        setTextByParts(ARABIC_PARTS, mArabicTextView, alignment);
+        setTextByParts(HEBREW_PARTS, mHebrewTextView, alignment);
     }
 
     /**
      * Set text using {@link com.github.iojjj.rcbs.RoundedCornersBackgroundSpan.Builder}.
-     *
-     * @param radius  corner radius
-     * @param padding text padding
      */
-    private void setTextByParts(float radius, int padding) {
-        final String[] colors = new String[]{
-                "#F44336",
-                null,
-                "#4CAF50",
-                null,
-                "#FF5722",
-                null,
-                "#607D8B",
-                null,
-                "#673AB7"
-        };
-        final String[] parts = new String[]{
-                "The mast grows passion like a swashbuckling mainland.",
-                "Golden, big gulls quirky endure a sunny, jolly sailor.",
-                "The misty freebooter heavily hails the wave.",
-                "Ooh, cold urchin!",
-                "All furners loot dark, coal-black seas.",
-                "Yo-ho-ho, greed!",
-                "Dead, gutless scabbards heavily hail a swashbuckling, undead sailor.",
-                "Yo-ho-ho! Pieces o' fight are forever golden.",
-                "Woodchucks are the landlubbers of the rough passion."
-        };
+    private void setTextByParts(@NonNull String[] parts, @NonNull TextView textView, @TextAlignment int alignment) {
         final RoundedCornersBackgroundSpan.Builder builder = new RoundedCornersBackgroundSpan.Builder(this)
-                .setTextPadding(padding)
-                .setCornersRadius(radius);
-        final SparseArray<Object[]> spans = new SparseArray<>();
-        spans.append(0, new Object[] { new ScaleXSpan(1.3f), new TypefaceSpan("monospace") });
-        spans.append(1, new Object[] { new RelativeSizeSpan(0.8f), new TypefaceSpan("serif") });
-        spans.append(2, new Object[] { new StyleSpan(Typeface.BOLD), new TypefaceSpan("sans-serif") });
-        spans.append(3, new Object[] { new SubscriptSpan() });
-        spans.append(4, new Object[] { new SuperscriptSpan() });
-        spans.append(5, new Object[] { new TextAppearanceSpan(this, android.R.style.TextAppearance_Small) });
-        spans.append(6, new Object[] { new TypefaceSpan("monospace") });
+                .setTextPadding(mPadding)
+                .setCornersRadius(mRadius);
         for (int i = 0; i < parts.length; i++) {
             final String part = parts[i];
-            final String color = colors[i];
+            final String color = COLORS[i];
             final SpannableString string = new SpannableString(part);
-            final Object[] spanObjects = spans.get(i);
-            if (spanObjects != null) {
-                for (Object object : spanObjects) {
-                    string.setSpan(object, 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                }
-            }
             if (!TextUtils.isEmpty(color)) {
                 final ForegroundColorSpan colorSpan = new ForegroundColorSpan(Color.WHITE);
                 string.setSpan(colorSpan, 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -94,11 +113,36 @@ public class MainActivity extends AppCompatActivity {
                 builder.addTextPart(string);
             }
         }
-        final Spannable firstText = builder.build();
-        text1.setText(firstText);
+        final Spannable firstText = builder
+                .setTextAlignment(alignment)
+                .build();
+        textView.setText(firstText);
     }
 
-    private static float convertDpToPx(Context context, float dp) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_left:
+                updateTextAlignment(RoundedCornersBackgroundSpan.ALIGN_START);
+                return true;
+            case R.id.action_center:
+                updateTextAlignment(RoundedCornersBackgroundSpan.ALIGN_CENTER);
+                return true;
+            case R.id.action_right:
+                updateTextAlignment(RoundedCornersBackgroundSpan.ALIGN_END);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private static float convertDpToPx(@NonNull Context context, float dp) {
         return context.getResources().getDisplayMetrics().density * dp;
     }
 }

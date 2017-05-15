@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_left"
+        android:icon="@drawable/ic_format_align_left_24dp"
+        app:showAsAction="always"
+        android:title="Align Start" />
+
+    <item
+        android:id="@+id/action_center"
+        android:icon="@drawable/ic_format_align_center_24dp"
+        app:showAsAction="always"
+        android:title="Align Center" />
+
+    <item
+        android:id="@+id/action_right"
+        android:icon="@drawable/ic_format_align_right_24dp"
+        app:showAsAction="always"
+        android:title="Align End" />
+
+</menu>
