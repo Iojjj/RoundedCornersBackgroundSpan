@@ -44,11 +44,6 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
     public static final int ALIGN_CENTER = 2;
 
     /**
-     * Default separator between text parts.
-     */
-    private static final CharSequence DEFAULT_SEPARATOR = "   ";
-
-    /**
      * Rectangle used for drawing background.
      */
     private final RectF mRectangle = new RectF();
@@ -87,7 +82,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
     /**
      * Separator between two parts.
      */
-    private final CharSequence mSeparator;
+    private final float mSeparatorWidth;
 
     /**
      * List that holds data required to properly measure text on the line that contains multiple
@@ -99,7 +94,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
         mPaint.setAntiAlias(true);
         mRadius = builder.mRadius;
         mPadding = builder.mPadding;
-        mSeparator = builder.mSeparator;
+        mSeparatorWidth = builder.mSeparatorWidth;
         mTextAlignment = builder.mTextAlignment;
         for (final Pair<CharSequence, BackgroundHolder> textPart : builder.mTextParts) {
             if (textPart.second != null) {
@@ -146,16 +141,16 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
 
     /**
      * Update list of holders on line.
+     *
      * @param backgroundHolder holder of text part
-     * @param startInText start position in text
-     * @param endInText end position in text
+     * @param startInText      start position in text
+     * @param endInText        end position in text
      */
     private void updateHoldersOnLine(@NonNull Paint p, int left, int right, int top, int baseline,
                                      @NonNull CharSequence text, @NonNull BackgroundHolder backgroundHolder,
                                      int startInText, int endInText) {
-        final float separatorWidth = p.measureText(mSeparator, 0, mSeparator.length());
         final TextPaint textPaint = getTextPaint(p, text, startInText, endInText);
-        final float prevTextWidth = getPrevTextWidth(text, separatorWidth);
+        final float prevTextWidth = getPrevTextWidth(text);
         float curTextWidth;
         try {
             curTextWidth = textPaint.measureText(text, startInText, endInText);
@@ -192,27 +187,28 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
 
     /**
      * Get width of previous text on line.
+     *
      * @param text some text
-     * @param separatorWidth width of separator
      * @return width of previous text on line
      */
-    private float getPrevTextWidth(CharSequence text, float separatorWidth) {
+    private float getPrevTextWidth(CharSequence text) {
         float prevTextWidth = 0;
         if (!mHoldersOnLine.isEmpty()) {
             for (LineDataHolder holder : mHoldersOnLine) {
                 prevTextWidth += holder.getTextPaint().measureText(text, holder.getStartIntText(), holder.getEndIntText());
             }
-            prevTextWidth += mHoldersOnLine.size() * separatorWidth;
+            prevTextWidth += mHoldersOnLine.size() * mSeparatorWidth;
         }
         return prevTextWidth;
     }
 
     /**
      * Get new text paint.
-     * @param p init paint object
-     * @param text some text
+     *
+     * @param p           init paint object
+     * @param text        some text
      * @param startInText start position in text
-     * @param endInText end position in text
+     * @param endInText   end position in text
      * @return new instance of TextPaint
      */
     @NonNull
@@ -232,6 +228,7 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
 
     /**
      * Calculate alignment fix value.
+     *
      * @return alignment fix value
      */
     private float calculateAlignmentFix(int left, int right) {
@@ -330,7 +327,8 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
         private final Context mContext;
         private float mRadius;
         private float mPadding;
-        private CharSequence mSeparator = DEFAULT_SEPARATOR;
+        private float mPartsSpacing;
+        private float mSeparatorWidth;
         private final List<Pair<CharSequence, BackgroundHolder>> mTextParts = new ArrayList<>();
         @TextAlignment
         private int mTextAlignment = ALIGN_START;
@@ -383,23 +381,13 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
         }
 
         /**
-         * Set separator between text parts.
-         *
-         * @param separator any separator
-         */
-        public Builder setSeparator(@NonNull CharSequence separator) {
-            mSeparator = separator;
-            return this;
-        }
-
-        /**
          * Add text part with background.
          *
          * @param textPart text part
          * @param bgColor  background color
          */
         public Builder addTextPart(@NonNull CharSequence textPart, @ColorInt int bgColor) {
-            final BackgroundHolder backgroundHolder = new BackgroundHolder(bgColor, 0, 0);
+            final BackgroundHolder backgroundHolder = new BackgroundHolder(bgColor);
             final Pair<CharSequence, BackgroundHolder> pair = Pair.create(textPart, backgroundHolder);
             mTextParts.add(pair);
             return this;
@@ -433,9 +421,33 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
             return addTextPart(mContext.getText(textRes));
         }
 
+        /**
+         * Set text alignment.
+         *
+         * @param textAlignment text alignment
+         */
         public Builder setTextAlignment(@TextAlignment int textAlignment) {
             mTextAlignment = textAlignment;
             return this;
+        }
+
+        /**
+         * Set spacing between text parts.
+         *
+         * @param spacing spacing in pixels
+         */
+        public Builder setPartsSpacing(float spacing) {
+            mPartsSpacing = spacing;
+            return this;
+        }
+
+        /**
+         * Set spacing between text parts.
+         *
+         * @param dimenId ID of dimension resource
+         */
+        public Builder setPartsSpacingRes(@DimenRes int dimenId) {
+            return setPartsSpacing(mContext.getResources().getDimension(dimenId));
         }
 
         /**
@@ -449,19 +461,19 @@ public final class RoundedCornersBackgroundSpan implements LineBackgroundSpan {
             }
             boolean first = true;
             final SpannableStringBuilder builder = new SpannableStringBuilder();
+            mSeparatorWidth = 2 * mPadding + mPartsSpacing;
             for (final Pair<CharSequence, BackgroundHolder> stringPart : mTextParts) {
                 if (first) {
                     first = false;
                 } else {
-                    builder.append(mSeparator);
+                    final int start = builder.length();
+                    builder.append(" ");
+                    final SpacingSpan spacingSpan = SpacingSpan.newInstance(mSeparatorWidth);
+                    builder.setSpan(spacingSpan, start, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
-                if (stringPart.second != null) {
-                    stringPart.second.setStart(builder.length());
-                }
+                stringPart.second.setStart(builder.length());
                 builder.append(stringPart.first);
-                if (stringPart.second != null) {
-                    stringPart.second.setEnd(builder.length());
-                }
+                stringPart.second.setEnd(builder.length());
             }
             final RoundedCornersBackgroundSpan span = new RoundedCornersBackgroundSpan(this);
             builder.setSpan(span, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

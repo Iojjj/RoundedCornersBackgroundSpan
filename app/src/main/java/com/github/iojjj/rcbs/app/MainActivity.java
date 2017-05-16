@@ -1,6 +1,5 @@
 package com.github.iojjj.rcbs.app;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -32,9 +31,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String[] ENGLISH_PARTS = new String[]{
             "Lorem ipsum dolor sit amet, omnis splendide cu vim, usu verear lucilius sensibus ut.",
-            " Nam ad semper fabellas scriptorem, ad aperiam referrentur sea.",
+            "Nam ad semper fabellas scriptorem, ad aperiam referrentur sea.",
             "Pri tation blandit id, usu et elitr scaevola pericula.",
-            "Agam philosophia eu sit, qui ut quidam mediocritatem. ",
+            "Agam philosophia eu sit, qui ut quidam mediocritatem.",
             "His te choro utinam noster, everti elaboraret comprehensam ut vel.",
     };
 
@@ -48,18 +47,16 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String[] HEBREW_PARTS = new String[]{
             "שפות הבהרה ואלקטרוניקה סדר ב.",
-            " כתב ברוכים ויקימדיה מה.",
-            " של תיבת עיצוב מונחונים בקר, הנדסת החופשית את היא.",
+            "כתב ברוכים ויקימדיה מה.",
+            "של תיבת עיצוב מונחונים בקר, הנדסת החופשית את היא.",
             "מונחונים בקר, הנדסת החופשית את היא.",
-            " כדי וקשקש לויקיפדיה אם."
+            "כדי וקשקש לויקיפדיה אם."
     };
 
     private TextView mEnglishTextView;
     private TextView mArabicTextView;
     private TextView mHebrewTextView;
     private TextView[] mAllTextViews;
-    private float mRadius;
-    private int mPadding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,8 +68,6 @@ public class MainActivity extends AppCompatActivity {
         mAllTextViews = new TextView[]{
                 mEnglishTextView, mArabicTextView, mHebrewTextView
         };
-        mRadius = convertDpToPx(this, 2);
-        mPadding = (int) convertDpToPx(this, 4);
         setTextByParts(ENGLISH_PARTS, mEnglishTextView, RoundedCornersBackgroundSpan.ALIGN_START);
         setTextByParts(ARABIC_PARTS, mArabicTextView, RoundedCornersBackgroundSpan.ALIGN_START);
         setTextByParts(HEBREW_PARTS, mHebrewTextView, RoundedCornersBackgroundSpan.ALIGN_START);
@@ -99,8 +94,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setTextByParts(@NonNull String[] parts, @NonNull TextView textView, @TextAlignment int alignment) {
         final RoundedCornersBackgroundSpan.Builder builder = new RoundedCornersBackgroundSpan.Builder(this)
-                .setTextPadding(mPadding)
-                .setCornersRadius(mRadius);
+                .setTextPaddingRes(R.dimen.rcbs_padding)
+                .setCornersRadiusRes(R.dimen.rcbs_radius);
         for (int i = 0; i < parts.length; i++) {
             final String part = parts[i];
             final String color = COLORS[i];
@@ -115,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         }
         final Spannable firstText = builder
                 .setTextAlignment(alignment)
+                .setPartsSpacingRes(R.dimen.rcbs_parts_spacing)
                 .build();
         textView.setText(firstText);
     }
@@ -140,9 +136,5 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    private static float convertDpToPx(@NonNull Context context, float dp) {
-        return context.getResources().getDisplayMetrics().density * dp;
     }
 }

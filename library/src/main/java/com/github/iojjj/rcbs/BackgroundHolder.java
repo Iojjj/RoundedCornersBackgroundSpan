@@ -20,10 +20,8 @@ final class BackgroundHolder {
      */
     private int mEnd;
 
-    BackgroundHolder(int bgColor, int start, int end) {
+    BackgroundHolder(int bgColor) {
         mBgColor = bgColor;
-        mStart = start;
-        mEnd = end;
     }
 
     int getBgColor() {
