@@ -6,13 +6,7 @@
 
 ## Setup and usage
 
-To include this library to your project add dependency in **build.gradle** file:
-
-```groovy
-dependencies {
-    compile 'com.github.iojjj:rcbs:1.0.0'
-}
-```
+**Fork this project**. Gradle dependency is **outdated**.
 
 You can create spannable string using  **RoundedCornersBackgroundSpan.Builder**. All methods has JavaDoc so check it to understand what each method is doing.
 
