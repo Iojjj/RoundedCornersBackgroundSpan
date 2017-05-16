@@ -8,7 +8,7 @@
 
 **Fork this project**. Gradle dependency is **outdated**.
 
-You can create spannable string using  **RoundedCornersBackgroundSpan.Builder**. All methods has JavaDoc so check it to understand what each method is doing.
+You can create spannable string using  **RoundedCornersBackgroundSpan.Builder**. All methods have JavaDoc so check it to understand what each method is doing.
 
 ```JAVA
 final Spannable spanned = new RoundedCornersBackgroundSpan.Builder(this)
