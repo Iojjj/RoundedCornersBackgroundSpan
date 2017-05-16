@@ -1,5 +1,7 @@
 # Rounded Corners Background Span
-![Left Aligned](/images/1_left.png)![Center Aligned](/images/2_center.png)![Right Aligned](/images/3_right.png)
+<a href="/images/1_left.png" title="Click to see in full size"><img src="/images/1_left.png" width="250" alt="Left Aligned" /></a>&nbsp;
+<a href="/images/2_center.png" title="Click to see in full size"><img src="/images/2_center.png" width="250" alt="Center Aligned" /></a>&nbsp;
+<a href="/images/3_right.png" title="Click to see in full size"><img src="/images/3_right.png" width="250" alt="Right Aligned" /></a>
 
 
 ## Setup and usage
@@ -12,24 +14,25 @@ dependencies {
 }
 ```
 
-You can create spannable string using  **RoundedCornersBackgroundSpan.Builder**.
+You can create spannable string using  **RoundedCornersBackgroundSpan.Builder**. All methods has JavaDoc so check it to understand what each method is doing.
 
 ```JAVA
 final Spannable spanned = new RoundedCornersBackgroundSpan.Builder(this)
-    .setTextPadding(textPadding)
-    .setCornersRadius(cornersRadius)
-    .setTextPaddingRes(R.dimen.textPadding)
-    .setCornersRadiusRes(R.dimen.cornersRadius)
-    .setSeparator("    ")
-    .addTextPart("part1", Color.RED)
-    .addTextPart(R.string.part2, R.color.colorAccent)
-    .addTextPart("part3. no background")
-    .addTextPart(R.string.part4_no_background)
+    .setTextPadding(float)
+    .setCornersRadius(float)
+    .setTextPaddingRes(dimenId)
+    .setCornersRadiusRes(dimenId)
+    .setSpacingSize(float)
+    .setSpacingSizeRes(dimenId)
+    .addTextPart(string, color)
+    .addTextPart(stringId, colorId)
+    .addTextPart(string)
+    .addTextPart(stringId)
     .build()
 textView.setText(spanned);
 ```
 
-As an entire text or text parts you can pass any `CharSequence`, even another `Spanned` strings with their own spans!
+As text parts you can pass any `CharSequence`, even another `Spanned` strings with their own spans!
 
 ## Restrictions:
 * Text with mixed layout directions is not supported (i.e. latin and arabic).
